@@ -1,5 +1,5 @@
 description: >
-  init the pulumi env.    
+  init the pulumi env.
   parameters:
     stack:
       type: string
