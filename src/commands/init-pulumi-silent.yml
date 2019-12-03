@@ -1,0 +1,19 @@
+description: >
+    init the pulumi env.    
+    parameters:
+      stack:
+        type: string
+        description: "Name of the stack to initialize."
+      secrets_provider:
+        type: string
+        description: "The type of the provider that should be used to encrypt and decrypt secrets (possible choices: default, passphrase, awskms, azurekeyvault, gcpkms, hashivault) (default 'default')."
+        default: "default"
+      working_directory:
+        type: string
+        description:
+            "The relative working directory to use, i.e. where your Pulumi.yaml is located."
+        default: "."
+    steps:
+      - run:
+          name: "pulumi stack init --stack << parameters.stack >> --secrets-provider << parameters.secrets_provider >>"
+          command: pulumi stack init --stack << parameters.stack >> --secrets-provider << parameters.secrets_provider >> --cwd << parameters.working_directory >> || true # don't error if stack exists
