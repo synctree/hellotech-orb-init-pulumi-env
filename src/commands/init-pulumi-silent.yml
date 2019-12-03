@@ -11,7 +11,7 @@ parameters:
   working_directory:
     type: string
     description:
-        "The relative working directory to use, i.e. where your Pulumi.yaml is located."
+      "The relative working directory to use, i.e. where your Pulumi.yaml is located."
     default: "."
 steps:
   - run:
