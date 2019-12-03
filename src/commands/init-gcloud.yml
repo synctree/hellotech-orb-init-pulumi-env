@@ -3,20 +3,20 @@ description: >
   init the pulumi env.
   # What will this command do?
   # Descriptions should be short, simple, and clear.
-    steps:
-      - checkout
-      - pulumi/login # Pulls from ${PULUMI_ACCESS_TOKEN}
-      - gcp-cli/install
-      - run:
-          working_directory: ./infra
-          command: |
-            echo $GOOGLE_APPLICATION_CREDENTIALS | gcloud auth activate-service-account --key-file=-
-            npm install
-            # setting some env vars for pulumi deploy
-            # https://circleci.com/docs/2.0/env-vars/#using-bash_env-to-set-environment-variables
-            echo "export K8S_NAMESPACE=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}" >> $BASH_ENV
-            if [ $CIRCLE_BRANCH == 'master' ]; then
-              echo "export INFRA_STACK=brettneesesynctree/hellotech-infra/legacy-dev" >> $BASH_ENV
-            else
-              echo "export INFRA_STACK=brettneesesynctree/hellotech-infra/legacy-dev" >> $BASH_ENV
-            fi
+  steps:
+    - checkout
+    - pulumi/login # Pulls from ${PULUMI_ACCESS_TOKEN}
+    - gcp-cli/install
+    - run:
+        working_directory: ./infra
+        command: |
+          echo $GOOGLE_APPLICATION_CREDENTIALS | gcloud auth activate-service-account --key-file=-
+          npm install
+          # setting some env vars for pulumi deploy
+          # https://circleci.com/docs/2.0/env-vars/#using-bash_env-to-set-environment-variables
+          echo "export K8S_NAMESPACE=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}" >> $BASH_ENV
+          if [ $CIRCLE_BRANCH == 'master' ]; then
+            echo "export INFRA_STACK=brettneesesynctree/hellotech-infra/legacy-dev" >> $BASH_ENV
+          else
+            echo "export INFRA_STACK=brettneesesynctree/hellotech-infra/legacy-dev" >> $BASH_ENV
+          fi
