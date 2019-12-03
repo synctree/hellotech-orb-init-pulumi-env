@@ -1,14 +1,13 @@
 version: 2.1
 
 description: >
-  Sample orb description
+  init-gcloud and init-pulumi-silent
   # What will your orb allow users to do?
   # Descriptions should be short, simple, and clear.
 
 display:
-  home_url: "https://www.github.com/EXAMPLE_ORG/EXAMPLE_PROJECT"
+  home_url: "https://www.github.com/synctree/hellotech-orb-init-pulumi-env"
 
 orbs:
-  hello: circleci/hello-build@0.0.5 # Sample imported orb
   pulumi: pulumi/pulumi@1.2.0
   gcp-cli: circleci/gcp-cli@1.8.3
