@@ -1,8 +1,6 @@
 # How to author commands: https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands
 description: >
   init the pulumi env.
-  # What will this command do?
-  # Descriptions should be short, simple, and clear.
 steps:
   - checkout
   - pulumi/login # Pulls from ${PULUMI_ACCESS_TOKEN}
