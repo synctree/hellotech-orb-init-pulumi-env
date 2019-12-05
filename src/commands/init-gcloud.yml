@@ -1,6 +1,11 @@
 # How to author commands: https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands
 description: >
   init the pulumi env.
+parameters:
+  infra_stack:
+    type: string
+    description: "Name of the infra stack to deploy resources onto."
+
 steps:
   - checkout
   - pulumi/login # Pulls from ${PULUMI_ACCESS_TOKEN}
@@ -10,6 +15,7 @@ steps:
       command: |
             echo $GOOGLE_APPLICATION_CREDENTIALS | gcloud auth activate-service-account --key-file=-
             npm install
+
             # setting some env vars for pulumi deploy
             # https://circleci.com/docs/2.0/env-vars/#using-bash_env-to-set-environment-variables
             echo "export K8S_NAMESPACE=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}" >> $BASH_ENV
@@ -18,3 +24,8 @@ steps:
             else
               echo "export INFRA_STACK=brettneesesynctree/hellotech-infra/legacy-staging" >> $BASH_ENV
             fi
+            
+            # If the infra_stack param exists, deploy resources there instead
+            <<# parameters.infra_stack >> 
+                echo "export INFRA_STACK=<<parameters.infra_stack>>" >> $BASH_ENV
+            <</ parameters.infra_stack >>
