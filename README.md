@@ -3,13 +3,10 @@
 
 *Current Version* __1.0.2__
 
-Right now we have to manually promote dev:alpha builds to prod orb as a `patch`, `minor` or `major` version increment.
+Right now we have to manually increment dev:alpha to prod as `patch`, `minor` or `major` with circleci cli.
 
-When the dev:alpha orb is ready to be prod:  
 `circleci orb publish promote synctree/init-pulumi-env@dev:alpha patch`
 
-View the current prod orb version:  
-`circleci orb info synctree/init-pulumi-env`
 
 
 ################################################################
