@@ -1,7 +1,7 @@
 # Pulumi Init Env Orb
 [![CircleCI](https://circleci.com/gh/synctree/hellotech-orb-init-pulumi-env/tree/master.svg?style=svg)](https://circleci.com/gh/synctree/hellotech-orb-init-pulumi-env/tree/master)
 
-*Current Version* 1.0.1
+*Current Version* __1.0.2__
 
 Right now we have to manually increment dev:alpha to prod as `patch`, `minor` or `major` with circleci cli.
 
