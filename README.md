@@ -1,6 +1,17 @@
 # Pulumi Init Env Orb
 [![CircleCI](https://circleci.com/gh/synctree/hellotech-orb-init-pulumi-env/tree/master.svg?style=svg)](https://circleci.com/gh/synctree/hellotech-orb-init-pulumi-env/tree/master)
 
+*Current Version* 1.0.1
+
+Right now we have to manually increment dev:alpha to prod as `patch`, `minor` or `major` with circleci cli.
+
+`circleci orb publish promote synctree/init-pulumi-env@dev:alpha patch`
+
+
+
+
+
+
 Built using the Orb Starter Kit [![CircleCI Build Status](https://circleci.com/gh/CircleCI-Public/orb-starter-kit.svg?style=shield "CircleCI Build Status")](https://circleci.com/gh/CircleCI-Public/orb-starter-kit) [![CircleCI Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com/c/ecosystem/orbs)
 
 This orb starter kit will help you write your own orb.
