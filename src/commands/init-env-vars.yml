@@ -1,0 +1,33 @@
+# How to author commands: https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands
+description: >
+  Init various env vars needed for build.
+  parameters: 
+    infra_project:
+      description: The fully qualified (organization/project) name of the Pulumi project where the Infra stacks are
+      default: brettneesesynctree/hellotech-infra
+    infra_stack_staging:
+      description: Name of the staging infra stack.
+      default: legacy-staging
+    infra_stack_production:
+      description: Name of the production infra stack.
+      default: legacy-production
+    docker_image_staging:
+      description: FQN of the staging Docker image destination.
+    docker_image_production:
+      description: FQN of the production Docker image destination.
+  steps:
+    - run: 
+        command: |
+          # setting some env vars for pulumi deploy
+          # https://circleci.com/docs/2.0/env-vars/#using-bash_env-to-set-environment-variables
+          if [ $CIRCLE_BRANCH == 'master' ]; then 
+            echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_staging >>" >> $BASH_ENV
+            echo "export DOCKER_IMAGE=<< parameters.docker_image_staging >>" >> $BASH_ENV
+          else 
+            echo "export INFRA_STACK=<< parameters.infra_project_production >>/<< parameters.infra_stack_production >>" >> $BASH_ENV
+            echo "export DOCKER_IMAGE=<< parameters.docker_image_staging >>" >> $BASH_ENV
+          fi
+          
+          # setting a namepsace var, which is the CIRCLE_BRANCH but with "/" replaced with "-"
+          # used both as a stack name in pulumi and a k8s namespace
+          echo "export NAMESPACE=$(echo ${CIRCLE_BRANCH} | tr '/' '-')" >> $BASH_ENV

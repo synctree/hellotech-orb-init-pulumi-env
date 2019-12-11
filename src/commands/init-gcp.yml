@@ -1,0 +1,15 @@
+description: >
+  Install and login to GCP.
+steps:
+  - gcp-cli/install
+  - run: 
+      command: |
+        if [ $CIRCLE_BRANCH == 'master' ]; then 
+          echo $GOOGLE_CREDENTIALS_PRODUCTION > ~/gcloud.json
+        else 
+          echo $GOOGLE_CREDENTIALS_STAGING > ~/gcloud.json
+        fi
+
+        # Logging into gcloud
+        gcloud auth activate-service-account --key-file=/home/circleci/gcloud.json
+        echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key --password-stdin https://gcr.io
