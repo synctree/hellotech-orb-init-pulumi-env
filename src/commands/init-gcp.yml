@@ -5,9 +5,9 @@ steps:
   - run:
       command: |
         if [ $CIRCLE_BRANCH == 'master' ]; then
-          echo $GOOGLE_CREDENTIALS_PRODUCTION > ~/gcloud.json
+          echo $GOOGLE_CREDENTIALS_PRODUCTION > /home/ci/gcloud.json
         else
-          echo $GOOGLE_CREDENTIALS_STAGING > ~/gcloud.json
+          echo $GOOGLE_CREDENTIALS_STAGING  /home/ci/gcloud.json
         fi
 
         # Logging into gcloud
