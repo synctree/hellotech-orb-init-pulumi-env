@@ -4,7 +4,7 @@ version: 2.1
 # release must exist; you'll need to publish manually at least once)
 # you can use scripts/publish-alpha.sh to publish a @dev:alpha release
 orbs:
-  init-pulumi-env: synctree/init-pulumi-env@dev:alpha
+  hellotech-ci: hellotech/ci@dev:alpha
   orb-tools: circleci/orb-tools@8.27.3
 
 workflows:
@@ -26,7 +26,7 @@ workflows:
       # store CIRCLE_TOKEN as a project env var or Contexts resource
       # if using Contexts, add your context below
       - orb-tools/publish-dev:
-          orb-name: synctree/init-pulumi-env
+          orb-name: hellotech/ci
           requires:
             - orb-tools/pack
 
@@ -34,27 +34,26 @@ workflows:
       # an SSH key must be stored in your orb's repository and in CircleCI
       # (add the public key as a read/write key on GitHub; add the private
       # key in CircleCI via SSH Permissions, with github.com as Hostname)
-      - orb-tools/trigger-integration-workflow:
-          name: trigger-integration-dev
-          ssh-fingerprints: 8b:43:97:3c:f4:93:ab:53:7e:3e:d9:ad:5b:f9:37:b7
-          requires:
-            - orb-tools/publish-dev
-          filters:
-            branches:
-              ignore: master
-
+      # - orb-tools/trigger-integration-workflow:
+      #     name: trigger-integration-dev
+      #     ssh-fingerprints: 8b:43:97:3c:f4:93:ab:53:7e:3e:d9:ad:5b:f9:37:b7
+      #     requires:
+      #       - orb-tools/publish-dev
+      #     filters:
+      #       branches:
+      #         ignore: master
       # by default, the 1st job (above) will trigger only integration tests;
       # the 2nd job (below) may also publish a production orb version
-      - orb-tools/trigger-integration-workflow:
-          name: trigger-integration-master
-          cleanup-tags: true
-          ssh-fingerprints: 8b:43:97:3c:f4:93:ab:53:7e:3e:d9:ad:5b:f9:37:b7
-          tag: master
-          requires:
-            - orb-tools/publish-dev
-          filters:
-            branches:
-              only: master
+      # - orb-tools/trigger-integration-workflow:
+      #     name: trigger-integration-master
+      #     cleanup-tags: true
+      #     ssh-fingerprints: 8b:43:97:3c:f4:93:ab:53:7e:3e:d9:ad:5b:f9:37:b7
+      #     tag: master
+      #     requires:
+      #       - orb-tools/publish-dev
+      #     filters:
+      #       branches:
+      #         only: master
 
   # this `integration-tests_prod-release` workflow will ignore commits
   # it is only triggered by git tags, which are created in the job above
@@ -66,7 +65,6 @@ workflows:
   #     # - once, for integration tests triggered by non-master-branch commits
   #     # - and again, for tests triggered by commits to master
   #     # - only commits to master should potentially trigger a prod release
-
   #     # patch, minor, or major publishing
   #     - orb-tools/dev-promote-prod:
   #         name: dev-promote-patch
@@ -80,7 +78,6 @@ workflows:
   #             ignore: /.*/
   #           tags:
   #             only: /master-patch.*/
-
   #     - orb-tools/dev-promote-prod:
   #         name: dev-promote-minor
   #         release: minor
@@ -94,7 +91,6 @@ workflows:
   #             ignore: /.*/
   #           tags:
   #             only: /master-minor.*/
-
   #     - orb-tools/dev-promote-prod:
   #         name: dev-promote-major
   #         release: major
