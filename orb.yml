@@ -1,0 +1,110 @@
+commands:
+  init-env-vars:
+    description: |
+      Init various env vars needed for build.
+    parameters:
+      docker_image_production:
+        description: FQN of the production Docker image destination.
+        type: string
+      docker_image_staging:
+        description: FQN of the staging Docker image destination.
+        type: string
+      infra_project:
+        default: brettneesesynctree/hellotech-infra
+        description: The fully qualified (organization/project) name of the Pulumi
+          project where the Infra stacks are
+        type: string
+      infra_stack_production:
+        default: legacy-production
+        description: Name of the production infra stack.
+        type: string
+      infra_stack_staging:
+        default: legacy-staging
+        description: Name of the staging infra stack.
+        type: string
+    steps:
+    - run:
+        command: |
+          # setting some env vars for pulumi deploy
+          # https://circleci.com/docs/2.0/env-vars/#using-bash_env-to-set-environment-variables
+          if [ $CIRCLE_BRANCH == 'master' ]; then
+            echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_staging >>" >> $BASH_ENV
+            echo "export DOCKER_IMAGE=<< parameters.docker_image_staging >>" >> $BASH_ENV
+          else
+            echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_production >>" >> $BASH_ENV
+            echo "export DOCKER_IMAGE=<< parameters.docker_image_staging >>" >> $BASH_ENV
+          fi
+
+          # setting a namepsace var, which is the CIRCLE_BRANCH but with "/" replaced with "-"
+          # used both as a stack name in pulumi and a k8s namespace
+          echo "export NAMESPACE=$(echo ${CIRCLE_BRANCH} | tr '/' '-')" >> $BASH_ENV
+  init-gcp:
+    description: |
+      Install and login to GCP.
+    steps:
+    - gcp-cli/install
+    - run:
+        command: |
+          if [ $CIRCLE_BRANCH == 'master' ]; then
+            echo $GOOGLE_CREDENTIALS_PRODUCTION > ~/gcloud.json
+          else
+            echo $GOOGLE_CREDENTIALS_STAGING > ~/gcloud.json
+          fi
+
+          # Logging into gcloud
+          gcloud auth activate-service-account --key-file=/home/circleci/gcloud.json
+          echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key --password-stdin https://gcr.io
+  init-pulumi-silent:
+    description: |
+      init the pulumi stack, silently.
+    parameters:
+      secrets_provider:
+        default: default
+        description: 'The type of the provider that should be used to encrypt and
+          decrypt secrets (possible choices: default, passphrase, awskms, azurekeyvault,
+          gcpkms, hashivault) (default ''default'').'
+        type: string
+      stack:
+        description: Name of the stack to initialize.
+        type: string
+      working_directory:
+        default: ./infra
+        description: The relative working directory to use, i.e. where your Pulumi.yaml
+          is located.
+        type: string
+    steps:
+    - run:
+        command: pulumi stack init --stack << parameters.stack >> --secrets-provider
+          << parameters.secrets_provider >> --cwd << parameters.working_directory
+          >> || true
+        name: pulumi stack init --stack << parameters.stack >> --secrets-provider
+          << parameters.secrets_provider >>
+  install-pulumi:
+    description: |
+      Install Pulumi SDK
+    steps:
+    - run:
+        command: |
+          cd ~/project/infra
+          npm install
+description: |
+  commands init-gcloud and init-pulumi-silent to init pulumi and GKE for pulumi runs.
+display:
+  home_url: https://www.github.com/synctree/hellotech-orb-init-pulumi-env
+executors:
+  default:
+    description: |
+      This is a sample executor using Docker and Node. # What is this executor? # Descriptions should be short, simple, and clear.
+    docker:
+    - image: circleci/node:<<parameters.tag>>
+    parameters:
+      tag:
+        default: latest
+        description: |
+          Pick a specific circleci/node image variant: https://hub.docker.com/r/circleci/node/tags
+        type: string
+orbs:
+  gcp-cli: circleci/gcp-cli@1.8.3
+  pulumi: pulumi/pulumi@1.2.0
+version: 2.1
+
