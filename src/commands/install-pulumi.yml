@@ -1,7 +1,7 @@
 description: >
   Install Pulumi SDK
 steps:
-  - run: 
+  - run:
       command: |
         cd ~/project/infra
         npm install

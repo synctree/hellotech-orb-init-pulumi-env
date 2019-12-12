@@ -10,9 +10,8 @@ parameters:
     default: "default"
   working_directory:
     type: string
-    description:
-      "The relative working directory to use, i.e. where your Pulumi.yaml is located."
-    default: "."
+    description: "The relative working directory to use, i.e. where your Pulumi.yaml is located."
+    default: "./infra"
 steps:
   - run:
       name: "pulumi stack init --stack << parameters.stack >> --secrets-provider << parameters.secrets_provider >>"

@@ -2,11 +2,11 @@ description: >
   Install and login to GCP.
 steps:
   - gcp-cli/install
-  - run: 
+  - run:
       command: |
-        if [ $CIRCLE_BRANCH == 'master' ]; then 
+        if [ $CIRCLE_BRANCH == 'master' ]; then
           echo $GOOGLE_CREDENTIALS_PRODUCTION > ~/gcloud.json
-        else 
+        else
           echo $GOOGLE_CREDENTIALS_STAGING > ~/gcloud.json
         fi
 
