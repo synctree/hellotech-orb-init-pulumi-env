@@ -1,0 +1,26 @@
+# How to author commands: https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands
+description: >
+  Build the Docker image
+parameters:
+  docker_image_staging:
+    description: FQN of the staging Docker image destination.
+    type: string
+  docker_image_production:
+    description: FQN of the production Docker image destination.
+    type: string
+
+docker:
+  - image: circleci/node:10
+steps:
+  - checkout
+  - init_gcp
+  - init_env_vars:
+      docker_image_production: << parameters.docker_image_production >>
+      docker_image_staging: << parameters.docker_image_staging >>
+  - setup_remote_docker
+    # docker_layer_caching: true
+  - run:
+      name: Build and push
+      command: |
+        docker build . -t $DOCKER_IMAGE
+        docker push $DOCKER_IMAGE

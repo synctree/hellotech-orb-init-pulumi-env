@@ -26,13 +26,17 @@ steps:
         # setting some env vars for pulumi deploy
         # https://circleci.com/docs/2.0/env-vars/#using-bash_env-to-set-environment-variables
         if [ $CIRCLE_BRANCH == 'master' ]; then
-          echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_staging >>" >> $BASH_ENV
-          echo "export DOCKER_IMAGE=<< parameters.docker_image_staging >>" >> $BASH_ENV
-        else
           echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_production >>" >> $BASH_ENV
+          echo "export DOCKER_IMAGE=<< parameters.docker_image_production >>" >> $BASH_ENV
+        else
+          echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_staging >>" >> $BASH_ENV
           echo "export DOCKER_IMAGE=<< parameters.docker_image_staging >>" >> $BASH_ENV
         fi
 
         # setting a namepsace var, which is the CIRCLE_BRANCH but with "/" replaced with "-"
         # used both as a stack name in pulumi and a k8s namespace
-        echo "export NAMESPACE=$(echo ${CIRCLE_BRANCH} | tr '/' '-')" >> $BASH_ENV
+        echo "export NAMESPACE=$CIRCLE_PROJECT_REPONAME_$(echo ${CIRCLE_BRANCH} | tr '/' '-')" >> $BASH_ENV
+        cat $BASH_ENV
+
+        echo " "
+        env

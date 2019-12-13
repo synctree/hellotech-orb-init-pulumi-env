@@ -1,5 +1,5 @@
 commands:
-  init-env-vars:
+  init_env_vars:
     description: |
       Init various env vars needed for build.
     parameters:
@@ -28,17 +28,21 @@ commands:
           # setting some env vars for pulumi deploy
           # https://circleci.com/docs/2.0/env-vars/#using-bash_env-to-set-environment-variables
           if [ $CIRCLE_BRANCH == 'master' ]; then
-            echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_staging >>" >> $BASH_ENV
-            echo "export DOCKER_IMAGE=<< parameters.docker_image_staging >>" >> $BASH_ENV
-          else
             echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_production >>" >> $BASH_ENV
+            echo "export DOCKER_IMAGE=<< parameters.docker_image_production >>" >> $BASH_ENV
+          else
+            echo "export INFRA_STACK=<< parameters.infra_project >>/<< parameters.infra_stack_staging >>" >> $BASH_ENV
             echo "export DOCKER_IMAGE=<< parameters.docker_image_staging >>" >> $BASH_ENV
           fi
 
           # setting a namepsace var, which is the CIRCLE_BRANCH but with "/" replaced with "-"
           # used both as a stack name in pulumi and a k8s namespace
-          echo "export NAMESPACE=$(echo ${CIRCLE_BRANCH} | tr '/' '-')" >> $BASH_ENV
-  init-gcp:
+          echo "export NAMESPACE=$CIRCLE_PROJECT_REPONAME_$(echo ${CIRCLE_BRANCH} | tr '/' '-')" >> $BASH_ENV
+          cat $BASH_ENV
+
+          echo " "
+          env
+  init_gcp:
     description: |
       Install and login to GCP.
     steps:
@@ -55,7 +59,7 @@ commands:
           # Logging into gcloud
           gcloud auth activate-service-account --key-file=/home/circleci/gcloud.json
           echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key --password-stdin https://gcr.io
-  init-pulumi:
+  init_pulumi:
     description: |
       Install Pulumi SDK
     steps:
@@ -64,7 +68,7 @@ commands:
         command: |
           cd ~/project/infra
           npm install
-  init-pulumi-stack-silent:
+  init_pulumi_stack_silent:
     description: |
       init the pulumi stack, silently.
     parameters:
@@ -105,6 +109,71 @@ executors:
         description: |
           Pick a specific circleci/node image variant: https://hub.docker.com/r/circleci/node/tags
         type: string
+jobs:
+  docker_build:
+    description: |
+      Build the Docker image
+    docker:
+    - image: circleci/node:10
+    parameters:
+      docker_image_production:
+        description: FQN of the production Docker image destination.
+        type: string
+      docker_image_staging:
+        description: FQN of the staging Docker image destination.
+        type: string
+    steps:
+    - checkout
+    - init_gcp
+    - init_env_vars:
+        docker_image_production: << parameters.docker_image_production >>
+        docker_image_staging: << parameters.docker_image_staging >>
+    - setup_remote_docker
+    - run:
+        command: |
+          docker build . -t $DOCKER_IMAGE
+          docker push $DOCKER_IMAGE
+        name: Build and push
+  stack_update:
+    description: |
+      Update the stack
+    docker:
+    - image: circleci/node:10
+    parameters:
+      docker_image_production:
+        description: FQN of the production Docker image destination.
+        type: string
+      docker_image_staging:
+        description: FQN of the staging Docker image destination.
+        type: string
+      infra_project:
+        default: brettneesesynctree/hellotech-infra
+        description: The fully qualified (organization/project) name of the Pulumi
+          project where the Infra stacks are
+        type: string
+      infra_stack_production:
+        default: legacy-production
+        description: Name of the production infra stack.
+        type: string
+      infra_stack_staging:
+        default: legacy-staging
+        description: Name of the staging infra stack.
+        type: string
+    steps:
+    - checkout
+    - init_gcp
+    - init_pulumi
+    - init_env_vars:
+        docker_image_production: << parameters.docker_image_production >>
+        docker_image_staging: << parameters.docker_image_staging >>
+        infra_stack_production: << parameters.infra_stack_production >>
+        infra_stack_staging: << parameters.infra_stack_staging >>
+    - init_pulumi_stack_silent:
+        stack: ${NAMESPACE}
+        working_directory: ./infra
+    - pulumi/update:
+        stack: ${NAMESPACE}
+        working_directory: ./infra
 orbs:
   gcp-cli: circleci/gcp-cli@1.8.3
   pulumi: pulumi/pulumi@1.2.0

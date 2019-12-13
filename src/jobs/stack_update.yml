@@ -1,0 +1,40 @@
+# How to author commands: https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands
+description: >
+  Update the stack
+parameters:
+  infra_project:
+    description: The fully qualified (organization/project) name of the Pulumi project where the Infra stacks are
+    default: brettneesesynctree/hellotech-infra
+    type: string
+  infra_stack_staging:
+    description: Name of the staging infra stack.
+    default: legacy-staging
+    type: string
+  infra_stack_production:
+    description: Name of the production infra stack.
+    default: legacy-production
+    type: string
+  docker_image_staging:
+    description: FQN of the staging Docker image destination.
+    type: string
+  docker_image_production:
+    description: FQN of the production Docker image destination.
+    type: string
+
+docker:
+  - image: circleci/node:10
+steps:
+  - checkout
+  - init_gcp
+  - init_pulumi
+  - init_env_vars:
+      infra_stack_production: << parameters.infra_stack_production >>
+      infra_stack_staging: << parameters.infra_stack_staging >>
+      docker_image_production: << parameters.docker_image_production >>
+      docker_image_staging: << parameters.docker_image_staging >>
+  - init_pulumi_stack_silent:
+      working_directory: ./infra
+      stack: ${NAMESPACE}
+  - pulumi/update:
+      stack: ${NAMESPACE}
+      working_directory: ./infra
