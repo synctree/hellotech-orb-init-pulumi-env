@@ -5,11 +5,12 @@ steps:
   - run:
       command: |
         if [ $CIRCLE_BRANCH == 'master' ]; then
-          echo $GOOGLE_CREDENTIALS_PRODUCTION > /home/ci/gcloud.json
+          echo $GOOGLE_CREDENTIALS_PRODUCTION > /home/circleci/gcloud.json
         else
-          echo $GOOGLE_CREDENTIALS_STAGING  /home/ci/gcloud.json
+          echo $GOOGLE_CREDENTIALS_STAGING > /home/circleci/gcloud.json
         fi
 
+        cat /home/circleci/gcloud.json
         # Logging into gcloud
         gcloud auth activate-service-account --key-file=/home/circleci/gcloud.json
-        echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key --password-stdin https://gcr.io
+        echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key https://gcr.io

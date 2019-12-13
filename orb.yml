@@ -46,15 +46,25 @@ commands:
     - run:
         command: |
           if [ $CIRCLE_BRANCH == 'master' ]; then
-            echo $GOOGLE_CREDENTIALS_PRODUCTION > ~/gcloud.json
+            echo $GOOGLE_CREDENTIALS_PRODUCTION > /home/circleci/gcloud.json
           else
-            echo $GOOGLE_CREDENTIALS_STAGING > ~/gcloud.json
+            echo $GOOGLE_CREDENTIALS_STAGING > /home/circleci/gcloud.json
           fi
 
+          cat /home/circleci/gcloud.json
           # Logging into gcloud
           gcloud auth activate-service-account --key-file=/home/circleci/gcloud.json
-          echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key --password-stdin https://gcr.io
-  init-pulumi-silent:
+          echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key -p $GOOGLE_CREDENTIALS_DOCKER https://gcr.io
+  init-pulumi:
+    description: |
+      Install Pulumi SDK
+    steps:
+    - pulumi/login
+    - run:
+        command: |
+          cd ~/project/infra
+          npm install
+  init-pulumi-stack-silent:
     description: |
       init the pulumi stack, silently.
     parameters:
@@ -79,14 +89,6 @@ commands:
           >> || true
         name: pulumi stack init --stack << parameters.stack >> --secrets-provider
           << parameters.secrets_provider >>
-  install-pulumi:
-    description: |
-      Install Pulumi SDK
-    steps:
-    - run:
-        command: |
-          cd ~/project/infra
-          npm install
 description: |
   commands init-gcloud and init-pulumi-silent to init pulumi and GKE for pulumi runs.
 display:

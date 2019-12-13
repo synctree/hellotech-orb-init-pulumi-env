@@ -1,6 +1,7 @@
 description: >
   Install Pulumi SDK
 steps:
+  - pulumi/login
   - run:
       command: |
         cd ~/project/infra
