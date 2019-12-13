@@ -54,7 +54,7 @@ commands:
           cat /home/circleci/gcloud.json
           # Logging into gcloud
           gcloud auth activate-service-account --key-file=/home/circleci/gcloud.json
-          echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key -p $GOOGLE_CREDENTIALS_DOCKER https://gcr.io
+          echo $GOOGLE_CREDENTIALS_DOCKER | docker login -u _json_key --password-stdin https://gcr.io
   init-pulumi:
     description: |
       Install Pulumi SDK
