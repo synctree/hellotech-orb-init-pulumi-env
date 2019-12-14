@@ -37,7 +37,7 @@ commands:
 
           # setting a namepsace var, which is the CIRCLE_BRANCH but with "/" replaced with "-"
           # used both as a stack name in pulumi and a k8s namespace
-          echo "export NAMESPACE=$CIRCLE_PROJECT_REPONAME_$(echo ${CIRCLE_BRANCH} | tr '/' '-')" >> $BASH_ENV
+          echo "export NAMESPACE=${CIRCLE_PROJECT_REPONAME}-$(echo ${CIRCLE_BRANCH} | tr '/' '-')" >> $BASH_ENV
           cat $BASH_ENV
 
           echo " "
